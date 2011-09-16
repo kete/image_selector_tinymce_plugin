@@ -1,0 +1,1 @@
+<li class="source source-selected" id={{sourceId}}>{{name}}</li>
