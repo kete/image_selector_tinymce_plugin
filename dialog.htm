@@ -1,0 +1,54 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>{#imageselector_dlg.title}</title>
+
+<link rel="stylesheet" type="text/css" href="css/media_selector.css" />
+
+<script type="text/javascript" src="../../tiny_mce_popup.js?v={tinymce_version}"></script>
+<script type="text/javascript" src="js/dialog.js?v={tinymce_version}"></script>
+
+</head>
+<body>
+
+
+<div id="main">
+
+<div id="providers">
+  <h2 class="section-header">Sources</h2>
+  <div id="providers-spinner"><img src="img/spinner.gif" width="16" height="16" alt="loading indicator. "></div>
+
+</div>
+
+<div id="results">
+  <h2 class="section-header">loading...</h2>
+  <div id="results-spinner"><img src="img/spinner.gif" width="16" height="16" alt="loading indicator. "></div>
+</div>
+
+<div style="clear:both;"></div>
+</div>
+
+<form onsubmit="ImageselectorDialog.insert();return false;" action="#">
+<p>Here is a imageselector dialog.</p>
+<p>Selected text: <input id="someval" name="someval" type="text" class="text" /></p>
+
+<div class="mceActionPanel">
+  <input type="button" id="insert" name="insert" value="{#insert}" onclick="ImageselectorDialog.insert();" />
+  <input type="button" id="cancel" name="cancel" value="{#cancel}" onclick="tinyMCEPopup.close();" />
+</div>
+</form>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+
+<script src="js/sammy-0.7.0.min.js"></script>
+<script src="js/sammy.template-0.7.0.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0.beta2/handlebars.min.js"></script>
+<script src="js/sammy.handlebars-0.7.0.min.js"></script>
+
+<script type="text/javascript">
+  var mediaSelectorConfig = { directory: '/javascripts/image_selector_config/' };
+</script>
+<script src="js/media_selector.js"></script>    
+
+</body>
+</html>
