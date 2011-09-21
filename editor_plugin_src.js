@@ -23,9 +23,10 @@
 	ed.addCommand('mceImageselector', function() {
 	    ed.windowManager.open({
 	      file : url + '/dialog.htm',
-		  width : 320 + parseInt(ed.getLang('imageselector.delta_width', 0)),
-		  height : 120 + parseInt(ed.getLang('imageselector.delta_height', 0)),
-		  inline : 1
+		  width : 900 + parseInt(ed.getLang('imageselector.delta_width', 0)),
+		  height : 500 + parseInt(ed.getLang('imageselector.delta_height', 0)),
+		  inline : 1,
+		  translate_i18n: false
 		  }, {
 	      plugin_url : url // Plugin absolute URL
 		  });

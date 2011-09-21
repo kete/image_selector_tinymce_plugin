@@ -11,7 +11,6 @@
  *
  */
 (function($) {
-  
   var app = $.sammy('#main', function() {
       this.use(Sammy.Handlebars, 'hb');
 
@@ -67,43 +66,55 @@
 
       // results for a give source id
       // selected source indicated in providers source list
-      this.get('#/:id', function(context) {
-	  var idIndexes = this.params['id'].split('-');
-	  var providerIndex = idIndexes[1],
-	    sourceIndex = idIndexes[2],
-	    the_provider = this.providers[providerIndex];
+      function getSource(context) {
+	var idIndexes = context.params['id'].split('-');
+	var providerIndex = idIndexes[1],
+	  sourceIndex = idIndexes[2],
+	  the_provider = context.providers[providerIndex];
 
-	  // get the results from selected source
-	  var selectedSource = the_provider.sources[sourceIndex];
+	// get the results from selected source
+	var selectedSource = the_provider.sources[sourceIndex];
+	
+	selectedSource['provider_title'] = the_provider['title'];
+	
+	context.trigger('updateSourceTo', selectedSource);
+	
+	context.trigger('updateResultsFor', selectedSource);
+      }
 
-	  selectedSource['provider_title'] = the_provider['title'];
-
-	  this.trigger('updateSourceTo', selectedSource);
-
-	  this.trigger('updateResultsFor', selectedSource);
-	});
+      // these are the same, except for addition of pagination in route
+      this.get('#/:id', function(context) { getSource(context) });
+      this.get('#/:id/page/:page_number', function(context) { getSource(context) });
 
       // same as above, but target for search form for a source
-      this.post('#/:id', function(context) {
-	  var idIndexes = this.params['id'].split('-');
-	  var providerIndex = idIndexes[1],
-	    sourceIndex = idIndexes[2],
-	    the_provider = this.providers[providerIndex];
+      function postSearchOfSource(context) {
+	var idIndexes = context.params['id'].split('-');
+	var providerIndex = idIndexes[1],
+	  sourceIndex = idIndexes[2],
+	  the_provider = context.providers[providerIndex];
 
-	  // get the results from selected source
-	  var selectedSource = the_provider.sources[sourceIndex];
+	// get the results from selected source
+	var selectedSource = the_provider.sources[sourceIndex];
+	
+	selectedSource['provider_title'] = the_provider['title'];
+	
+	context.trigger('updateSourceTo', selectedSource);
+	
+	context.trigger('updateResultsFor', selectedSource);
+      }
 
-	  selectedSource['provider_title'] = the_provider['title'];
-
-	  this.trigger('updateSourceTo', selectedSource);
-
-	  this.trigger('updateResultsFor', selectedSource);
-	});
+      // same except for pagination support
+      this.post('#/:id', function(context) { postSearchOfSource(context) });
+      this.post('#/:id/page/:page_number', function(context) { postSearchOfSource(context) });
 
       // a given result's display
       // show available sizes (based on requests to oembed provider for result id)
       // so user may choose which size
       this.get('#/results/:id', function(context) {
+	  $('#results').fadeOut();
+	  $('#providers').fadeOut();
+	  $('#page-spinner').fadeIn();
+
 	  // params['id'] decodes to normal url, but we need escaped version
 	  var resultUrl = escape(this.params['id']);
 
@@ -162,6 +173,7 @@
 		  sizes: resultSizes
 		  };
 
+		  $('#page-spinner').fadeOut();
 		  // this views takes whole area of page
 		  context.partial('templates/result.hb', resultForTemplate);
 		}
@@ -242,6 +254,9 @@
       // this gives selected result and the user's selected size
       // and outputs end result of oembed request for html to embed the result at the selected size
       this.get('#/selections/:id', function(context) {
+	  $('#result-description-and-sizes').fadeOut();
+	  $('#page-spinner').fadeIn();
+
 	  // params['id'] decodes to normal url, but we need escaped version
 	  var oembedUrl = this.params['id'];
 
@@ -250,10 +265,10 @@
 		// TODO: make this detect xml or json and parse accordingly
 		// TODO: this is limited to same domain only for now, update to handle JSONP
 		// probably need to switch to $.ajax and more complete parameters call for jsonp
-		var selectionForTemplate = $.parseJSON(response);
+		var selectionFromResponse = $.parseJSON(response);
 
 		// add alt value for selection so we can use it in template
-		var alt = selectionForTemplate.title;
+		var alt = selectionFromResponse.title;
 
 		// add a full stop to title for better accessibility
 		// start by stripping off trailing spaces for ease our following logic
@@ -263,10 +278,48 @@
 		  alt = alt + '. ';
 		}
 
-		selectionForTemplate.alt = alt;
+		selectionFromResponse.alt = alt;
+		
+		// look up matching provider, check for code to call with selectionFromResponse
+		var selectionProvider;
 
-		// this view takes whole of view
-		context.partial('templates/selection.hb', selectionForTemplate);
+		$.each(context.providers, function(i, provider) {
+		    // TODO: make sure this works with IE8
+		    if (oembedUrl.indexOf(provider.domain) != -1) {
+		      selectionProvider = provider;
+		      return false;
+		    }
+		  });
+
+		$('#page-spinner').fadeOut();
+
+		if (selectionProvider !== '' &&
+		    typeof selectionProvider !== 'undefined' &&
+		    selectionProvider.insertIntoEditor !== '' &&
+		    typeof selectionProvider.insertIntoEditor !== 'undefined') {
+		  
+		  if (selectionProvider.insertIntoEditor.editor !== '' &&
+		      typeof selectionProvider.insertIntoEditor.editor !== 'undefined') {
+		    
+		    // TODO: tweak this based on provider.media_type in future
+		    var valueToInsert = '<img src="' + selectionFromResponse.url + '" width="';
+		    valueToInsert = valueToInsert + selectionFromResponse.width;
+		    valueToInsert = valueToInsert + '" height="' + selectionFromResponse.height;
+		    valueToInsert = valueToInsert + '" alt="' + selectionFromResponse.alt + '"> by <a href="';
+		    valueToInsert = valueToInsert + selectionFromResponse.author_url + '">' + selectionFromResponse.author_name +'</a>';
+
+		    if (selectionProvider.insertIntoEditor.editor === 'TinyMCE') {
+		      tinyMCEPopup.editor.execCommand('mceInsertContent', false, valueToInsert);
+		      tinyMCEPopup.close();		      
+		    }
+		  }
+		  selectionProvider.processFinal(selectionFromResponse);
+
+		} else {
+		  // otherwise we render template
+		  // this view takes whole of view
+		  context.partial('templates/selection.hb', selectionFromResponse);
+		}
 	      })
 	    .error(function() {
 		context.log("oembed selection response failed for " + oembedUrl);
@@ -302,9 +355,10 @@
       // or add image URL
       // add to result detail page a "back" button
       this.bind('updateSourceTo', function(e, selectedSource) {
+	  $('#page-spinner').hide();
 	  $('#results-list').text('');
 	  $('h3.no-results-title').hide();
-	  $('#results-spinner').show();
+	  $('#results-spinner').fadeIn();
 
 	  context = this;
 
@@ -322,7 +376,6 @@
 
 	      $.each(provider.sources, function(i, source) {
 		  source.sourceId = context.sourceIdFor(providerIndex, i);
-		  context.log("sourceId is: " + source.sourceId);
 
 		  var appropriate_template = context.sourceTemplateStub;
 
@@ -365,31 +418,50 @@
 	  context = this;
 
 	  var searchTerms = this.params['search_terms'],
-	    full_url = source.url;
+	    pageNumber = this.params['page_number'],
+	    fullUrl = source.url;
 
 	  if (searchTerms) {
-	    full_url += searchTerms;
+	    fullUrl += searchTerms;
 	  }
 
-	  if (typeof(source['limit_parameter']) != "undefined" &&
-	      typeof(source['display_limit']) != "undefined") {
-	    full_url += source.limit_parameter + source.display_limit;
+	  if (typeof(source['limit_parameter']) !== "undefined" &&
+	      typeof(source['display_limit']) !== "undefined") {
+	    
+	    var limit_parameter_adjusted = source.limit_parameter;
+
+	    if (searchTerms) {
+	      limit_parameter_adjusted = limit_parameter_adjusted.replace(/^\?/, "&");
+	    }
+
+	    fullUrl += limit_parameter_adjusted + source.display_limit;
+
+	    if (source['page_parameter'] !== '' && typeof(source['page_parameter']) !== "undefined") {
+	      if (pageNumber === '' || typeof pageNumber === 'undefined') {
+		pageNumber = 1;
+	      }
+
+	      source.nextPage = parseInt(pageNumber) + 1;
+	      fullUrl += source.page_parameter + pageNumber.toString();
+	    }
 	  }
 
-	  var resultRequest = $.get(full_url)
+	  var resultRequest = $.get(fullUrl)
 	    .success(function( response ) {
 		$('#results-spinner').hide();
 		$('#results-list').text('');
 
-		var resultsTitle = 'Results of ' + source.name + ' in ' + source.provider_title;
+		var resultsTitle = source.name + ' ' + source.media_type_plural;
 
 		if (searchTerms) {
 		  resultsTitle = resultsTitle + ' for "' + searchTerms + '"';
+		  source.searchTerms = searchTerms;
 		}
+
+		resultsTitle = resultsTitle +  '(click to select)';
 
 		$('#results h2').text(resultsTitle);
 
-		// TODO: provide pagination
 		var itemsLimit = source.display_limit;
 		var itemsCount = 0;
 
@@ -404,7 +476,7 @@
 		  items = $(response).find('entry');
 		}
 
-		if (items.length > 0) {
+		if (items.length) {
 		  $('#results').append("<ul id=\"results-list\">");
 
 		  items.each(function() {
@@ -431,10 +503,30 @@
 		
 		      context.render('templates/result_thumbnail.hb', result)
 			.appendTo('#results-list');
-		
+
 		      itemsCount++;
 		    });
+		  
 		  $('#results').append("</ul>");
+
+		  if (source.nextPage !== '' && typeof source.nextPage !== 'undefined') {
+		    // clear them, if they exist, so we can replace them later
+		    $('#search-form-next').remove();
+		    $('#next-page').remove();
+
+		    // if we have less items than display_limit,
+		    // we don't have any more pages of results
+		    // if equal, we assume there are more (faulty assumption, but relatively safe)
+		    if (items.length === source.display_limit) {
+		      if (searchTerms) {
+			context.render('templates/source_next_page_link_search.hb', source)
+			  .appendTo('#results');
+		      } else {
+			context.render('templates/source_next_page_link.hb', source)
+			  .appendTo('#results');
+		      }
+		    }
+		  }
 		} else {
 		  context.render('templates/no_results.hb', source)
 		    .appendTo($('#results'));
@@ -442,6 +534,11 @@
 	      })
 	    .error(function() {
 		$('#results-spinner').hide();
+
+		// clear them, as they are no longer relevant
+		$('#search-form-next').remove();
+		$('#next-page').remove();
+
 		context.render('templates/results_failed.hb', source)
 		  .appendTo($('#results'));
 	      });

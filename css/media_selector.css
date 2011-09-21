@@ -4,7 +4,12 @@ body {
 
 #providers {
     float: left;
-    width: 25%;
+    width: 30%;
+}
+
+#providers ul {
+    padding-left: 0;
+    margin-left: 0;
 }
 
 #providers li.upload-link {
@@ -16,14 +21,14 @@ body {
 }
 
 #providers li.source-selected {
-    list-style-type: circle;
+    list-style-type: none;
 }
 
 #results {
     border-left: #999 1px solid;
     padding-left: 5%;
     float: right;
-    width: 70%;
+    width: 65%;
 }
 
 #results li.result-grid {
@@ -34,6 +39,7 @@ body {
 }
 
 .result-thumbnail-select {
+    display: none;
     text-align: center;
 }
 
@@ -62,3 +68,13 @@ textarea.selection-embed {
     padding: 5px;
 }
 
+img.spinner {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#next-page, #search-form-next {
+    clear: both;
+    width: 100%;
+}
