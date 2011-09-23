@@ -71,7 +71,7 @@
 	    author : 'Walter McGinnis',
 	    authorurl : 'http://waltermcginnis.com',
 	    infourl : 'https://github.com/kete/image_selector_tinymce_plugin',
-	    version : "0.1"
+	    version : "0.2"
 	    };
       }
     });
