@@ -330,7 +330,14 @@
       function sizesLoadedInto(context) {
 	return $.get(mediaSelectorConfig.directory + 'sizes.json')
 	  .success(function(response) {
-	      context.sizes = $.parseJSON(response);
+	      // plain response is probably already json object if parse returns null
+	      var responseAsJSON = response;
+
+	      if (typeof(responseAsJSON) == 'string' || responseAsJSON === '' || typeof(responseAsJSON) === 'undefined') {
+		responseAsJSON = $.parseJSON(response);
+	      }
+
+	      context.sizes = responseAsJSON;
 	    })
 	  .error(function() {
 	      context.log("response failed");
