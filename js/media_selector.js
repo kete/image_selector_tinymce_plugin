@@ -492,10 +492,8 @@
 		      var resultThumbnail = $(this).find("thumbnail").attr('url');
 
 		      if (!resultThumbnail || 0 === resultThumbnail.length) {
-			// TODO: currently broken
-			$(this).find('description').each(function() {
-			    resultThumbnail = $(this).find('img').attr('src');
-			  });
+			var description = $(this).find('description').text();
+			resultThumbnail = $(description).find('img').attr('src');
 		      }
 		
 		      var resultTitle = $(this).find('title').text();
