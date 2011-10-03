@@ -139,11 +139,6 @@
 		  var sizeCount = 0;
 
 		  $.each(sizesNames(context), function(i, sizeName) {
-		      if (!result[sizeName]) {
-			// firefox workaround
-			result[sizeName] = {};
-		      }
-
 		      result[sizeName]["size_name"] = sizeName;
 
 		      var currentSize = {};
@@ -211,12 +206,20 @@
 		    });
 
 		  // and append what is returned from oembed to result object for that size name
-		  $.get(result.oembedUrlFor(size))
+		  $.ajax({ url: result.oembedUrlFor(size), dataType: 'json' })
 		  .success(function(response) {
 		      // TODO: make this detect xml or json and parse accordingly
 		      // TODO: this is limited to same domain only for now, update to handle JSONP
 		      // probably need to switch to $.ajax and more complete parameters call for jsonp
-		      result[size.name] = $.parseJSON(response);
+		      result[size.name] = response;
+		      
+                      if (typeof(result[size.name]) === 'string' ||
+			  result[size.name]  === '' ||
+			  typeof(result[size.name]) === 'undefined') {
+
+                          result[size.name] = $.parseJSON(response);
+                      }
+
 
 		      // scope issue, response is set in calling scope, and not getting set with recursive call
 		      result.updateWithNeededSizesThenRender(context);
@@ -272,7 +275,10 @@
 		// probably need to switch to $.ajax and more complete parameters call for jsonp
 		var selectionFromResponse = response;
 
-		if (typeof(selectionFromResponse) === 'string' || selectionFromResponse  === '' || typeof(selectionFromResponse) === 'undefined') {
+		if (typeof(selectionFromResponse) === 'string' ||
+		    selectionFromResponse  === '' ||
+		    typeof(selectionFromResponse) === 'undefined') {
+
 		  selectionFromResponse = $.parseJSON(response);
 		}
 
@@ -342,7 +348,10 @@
 	      // plain response is probably already json object if parse returns null
 	      var responseAsJSON = response;
 
-	      if (typeof(responseAsJSON) == 'string' || responseAsJSON === '' || typeof(responseAsJSON) === 'undefined') {
+	      if (typeof(responseAsJSON) == 'string' ||
+		  responseAsJSON === '' ||
+		  typeof(responseAsJSON) === 'undefined') {
+
 		responseAsJSON = $.parseJSON(response);
 	      }
 
