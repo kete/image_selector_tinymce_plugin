@@ -139,6 +139,11 @@
 		  var sizeCount = 0;
 
 		  $.each(sizesNames(context), function(i, sizeName) {
+		      if (!result[sizeName]) {
+			// firefox workaround
+			result[sizeName] = {};
+		      }
+
 		      result[sizeName]["size_name"] = sizeName;
 
 		      var currentSize = {};
@@ -260,12 +265,16 @@
 	  // params['id'] decodes to normal url, but we need escaped version
 	  var oembedUrl = this.params['id'];
 
-	  $.get(oembedUrl)
+	  $.ajax({ url: oembedUrl, dataType: 'json' })
 	    .success(function(response) {
 		// TODO: make this detect xml or json and parse accordingly
 		// TODO: this is limited to same domain only for now, update to handle JSONP
 		// probably need to switch to $.ajax and more complete parameters call for jsonp
-		var selectionFromResponse = $.parseJSON(response);
+		var selectionFromResponse = response;
+
+		if (typeof(selectionFromResponse) === 'string' || selectionFromResponse  === '' || typeof(selectionFromResponse) === 'undefined') {
+		  selectionFromResponse = $.parseJSON(response);
+		}
 
 		// add alt value for selection so we can use it in template
 		var alt = selectionFromResponse.title;
