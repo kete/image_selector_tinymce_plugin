@@ -29,7 +29,7 @@
 
 	    $.each(context.providers, function(i, provider) {
 		$('#providers').append("<h3 class=\"provider-title\" id=\"" + context.providerTitleIdFor(i) + "\">" + provider.title + '</h3>');
-		$('#providers').append("<ul id=\"" + context.providerListIdFor(i) + "\"></div>");
+		$('#providers').append("<ul id=\"" + context.providerListIdFor(i) + "\"></ul>");
 	      });
 	  },
 	sourceIdFor: function(providerIndex, sourceIndex) {
