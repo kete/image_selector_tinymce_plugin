@@ -1,1 +1,1 @@
-<li class="upload-link"><a href="{{url}}{{service_target_param}}">{{label}}</li>
+<li class="upload-link"><a href="{{url}}{{service_target_param}}">{{label}}</a></li>
