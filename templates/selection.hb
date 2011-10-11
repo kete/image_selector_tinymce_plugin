@@ -11,4 +11,4 @@
 <textarea class="selection-embed"><img src="{{url}}" width="{{width}}" height="{{height}}" alt="{{alt}}"> by <a href="{{author_url}}">{{author_name}}</a></textarea>
 
 </div>
-<div id="home-link"><a href="index.html">Back to Sources</a></div>
+<div id="home-link"><a href="dialog.htm">Back to Sources</a></div>

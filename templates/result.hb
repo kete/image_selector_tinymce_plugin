@@ -14,5 +14,5 @@
 {{/sizes}}
 </ul>
 
-<div id="home-link"><a href="index.html">Back to Sources</a></div>
+<div id="home-link"><a href="dialog.htm">Back to Sources</a></div>
 </div>
