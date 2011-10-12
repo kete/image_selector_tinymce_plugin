@@ -25,6 +25,7 @@
 	      file : url + '/dialog.htm',
 		  width : 900 + parseInt(ed.getLang('imageselector.delta_width', 0)),
 		  height : 500 + parseInt(ed.getLang('imageselector.delta_height', 0)),
+		  resizable: true,
 		  inline : 1,
 		  translate_i18n: false
 		  }, {
@@ -71,7 +72,7 @@
 	    author : 'Walter McGinnis',
 	    authorurl : 'http://waltermcginnis.com',
 	    infourl : 'https://github.com/kete/image_selector_tinymce_plugin',
-	    version : "0.2"
+	    version : "0.3"
 	    };
       }
     });

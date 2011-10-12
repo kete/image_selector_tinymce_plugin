@@ -14,6 +14,10 @@ Copy the contents of this directory to directory called imageselector under your
 
 You'll also need to set up JSON files for your image providers and the size you want. IMPORTANT! These are assumed to be under /javascripts/image_selector_config/ on your site. See https://github.com/kete/media_selector/blob/master/data/providers.json and https://github.com/kete/media_selector/blob/master/data/sizes.json for how (you'll need to adjust URLs, etc. to suit).
 
+## Highly Recommended
+
+When you configure TinyMCE, choose to use the 'inlinepopups' plugin and also dialog_type of "modal". I've found that IE and FireFox otherwise will not present the vertical scrollbar when you need it with image selector.
+
 ## Dependencies
 
 TinyMCE provides the plugin API that we are integrating with.
